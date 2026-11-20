@@ -1,0 +1,22 @@
+{% extends 'base.html' %}{% block title %}Reports{% endblock %}{% block content %}
+<div class="page-heading"><div><p class="eyebrow">REPORTS &amp; BILLING</p><h1>Consumption &amp; cost report</h1><p class="muted">30-day daily energy totals and estimated electricity expenditure.</p></div><a class="button secondary" href="{{ url_for('main.export_csv') }}">Download CSV</a></div>
+<section class="panel">
+  <div class="panel-head">
+    <div><h2>Tariff configuration</h2><p class="muted">Current institutional rate: <strong>₹{{ '%.2f'|format(tariff) }} / kWh</strong> · 30-day recorded total: <strong>{{ total_kwh|num }} kWh (₹{{ '%.2f'|format(total_kwh * tariff) }})</strong></p></div>
+    <form method="post" class="inline-form">
+      <input name="tariff" type="number" step="0.1" min="0.5" value="{{ '%.2f'|format(tariff) }}" style="max-width:110px" required>
+      <button class="button" type="submit">Update rate</button>
+    </form>
+  </div>
+  <table>
+    <thead><tr><th>Date</th><th>Recorded Energy</th><th>Estimated Cost (₹)</th></tr></thead>
+    <tbody>
+      {% for day, value in rows|reverse %}
+      <tr><td>{{ day }}</td><td>{{ value|num }} kWh</td><td>₹{{ '%.2f'|format(value * tariff) }}</td></tr>
+      {% else %}
+      <tr><td colspan="3">No readings available.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

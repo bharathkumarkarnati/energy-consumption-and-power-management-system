@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}SRU Energy{% endblock %} | SR University</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{{ url_for('main.dashboard') }}"><span class="brand-mark">SR</span><span><strong>SR University</strong><small>Energy Management Portal</small></span></a>
+  <nav>
+    <a href="{{ url_for('main.dashboard') }}" class="{{ 'active' if request.endpoint == 'main.dashboard' else '' }}">Overview</a>
+    <a href="{{ url_for('main.monitoring') }}" class="{{ 'active' if request.endpoint == 'main.monitoring' else '' }}">Monitoring</a>
+    <a href="{{ url_for('main.campus') }}" class="{{ 'active' if request.endpoint in ['main.campus', 'main.block_detail', 'main.room_detail'] else '' }}">Campus</a>
+    <a href="{{ url_for('main.equipment') }}" class="{{ 'active' if request.endpoint == 'main.equipment' else '' }}">Equipment</a>
+    <a href="{{ url_for('main.insights') }}" class="{{ 'active' if request.endpoint == 'main.insights' else '' }}">AI Insights</a>
+    <a href="{{ url_for('main.reports') }}" class="{{ 'active' if request.endpoint == 'main.reports' else '' }}">Reports</a>
+  </nav>
+</header>
+<main class="page">
+  {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<div class="notice {{ category }}">{{ message }}</div>{% endfor %}{% endwith %}
+  {% block content %}{% endblock %}
+</main>
+<footer>SR University · Department of Engineering · Smart Energy Consumption &amp; Power Management System</footer>
+</body></html>

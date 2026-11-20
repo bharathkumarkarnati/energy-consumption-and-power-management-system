@@ -1,0 +1,4 @@
+{% extends 'base.html' %}{% block title %}{{ block.name }}{% endblock %}{% block content %}
+<div class="breadcrumbs"><a href="{{ url_for('main.campus') }}">Campus</a> / {{ block.name }}</div><div class="page-heading"><div><p class="eyebrow">CAMPUS BLOCK</p><h1>{{ block.name }}</h1><p class="muted">Three floors · Ten rooms on each floor</p></div></div>
+{% for floor in block.floors|sort(attribute='number') %}<section class="panel floor-panel"><div class="panel-head"><h2>Floor {{ floor.number }}</h2><span class="muted">{{ floor.rooms|length }} rooms</span></div><div class="room-grid">{% for room in floor.rooms|sort(attribute='code') %}<a class="room-card" href="{{ url_for('main.room_detail', room_id=room.id) }}"><strong>{{ room.code }}</strong><span>{{ room.room_type }}</span><small>{{ room.equipment|length }} equipment entries</small></a>{% endfor %}</div></section>{% endfor %}
+{% endblock %}

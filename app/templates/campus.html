@@ -1,0 +1,12 @@
+{% extends 'base.html' %}{% block title %}Campus{% endblock %}{% block content %}
+<div class="page-heading"><div><p class="eyebrow">CAMPUS DIRECTORY</p><h1>Campus blocks</h1><p class="muted">Select any block to inspect its 3 floors, 30 rooms, and installed equipment.</p></div></div>
+<div class="block-grid">
+  {% for block in blocks %}
+  <a class="block-card" href="{{ url_for('main.block_detail', block_id=block.id) }}">
+    <span class="block-number">{{ loop.index }}</span>
+    <div><h2>{{ block.name }}</h2><p>3 floors · 30 rooms · Est. {{ block_stats[block.id]|num }} kWh/day</p></div>
+    <span class="arrow">→</span>
+  </a>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}{% block title %}AI Insights{% endblock %}{% block content %}
+<div class="page-heading"><div><p class="eyebrow">AI ANALYTICS</p><h1>Forecasting &amp; optimization</h1><p class="muted">7-day linear regression forecast, Z-score anomaly detection, and targeted saving actions.</p></div></div>
+<section class="panel">
+  <h2>7-Day campus demand forecast</h2>
+  <p class="muted">{{ forecast_note }}</p>
+  {% if forecast %}
+  <div class="forecast-row">
+    {% for day in forecast %}
+    <div class="{{ 'weekend' if day.is_weekend else '' }}">
+      <span>{{ day.date }}</span>
+      <strong>{{ day.kwh|num }}</strong>
+      <small>kWh ({{ 'Weekend' if day.is_weekend else 'Weekday' }})</small>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</section>
+<section class="panel table-panel">
+  <div class="panel-head"><h2>Detected consumption anomalies</h2><span class="muted">Rooms &gt; 1.8σ above historical room baseline</span></div>
+  {% if alerts %}
+  <table>
+    <thead><tr><th>Room</th><th>Type</th><th>Latest Reading</th><th>Room Baseline</th><th>Deviation</th><th>Z-Score</th><th>Detected At</th></tr></thead>
+    <tbody>
+      {% for item in alerts %}
+      <tr>
+        <td><a href="{{ url_for('main.room_detail', room_id=item.room_id) }}">{{ item.room }}</a></td>
+        <td>{{ item.room_type }}</td>
+        <td><strong>{{ item.latest|num }} kWh</strong></td>
+        <td>{{ item.average|num }} kWh</td>
+        <td><span class="tag simulated">+{{ item.pct_above }}%</span></td>
+        <td>{{ item.z_score }}σ</td>
+        <td>{{ item.recorded_at.strftime('%d %b %Y, %I:%M %p') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No statistical anomalies detected in recent room history.</p>
+  {% endif %}
+</section>
+<section class="panel">
+  <h2>Recommended energy-saving actions</h2>
+  <p class="muted">Prioritized from anomalous spikes and high-duty equipment schedules.</p>
+  {% for item in suggestions %}
+  <div class="suggestion">
+    <div>
+      <strong>{{ item.title }}</strong>
+      <span class="muted">{{ item.where }} · Priority: {{ item.priority }}</span>
+      <p>{{ item.reason }}</p>
+    </div>
+    <span class="saving">Save ~{{ item.saving|num }} kWh/day</span>
+  </div>
+  {% else %}
+  <p>No suggestions available yet.</p>
+  {% endfor %}
+</section>
+{% endblock %}

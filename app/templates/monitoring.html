@@ -1,0 +1,41 @@
+{% extends 'base.html' %}{% block title %}Monitoring{% endblock %}{% block content %}
+<div class="page-heading"><div><p class="eyebrow">ENERGY DATA</p><h1>Energy monitoring</h1><p class="muted">Log sub-meter readings manually or inspect incoming IoT/API records.</p></div><a class="button secondary" href="{{ url_for('main.export_csv') }}">Export CSV</a></div>
+<div class="content-grid monitoring-grid">
+  <section class="panel">
+    <h2>Record a meter reading</h2>
+    <p class="muted">Enter a room code (e.g. 1101 for Block 1 Floor 1 Room 01) and kWh consumed.</p>
+    <form method="post" class="form">
+      <label>Room code<input name="room_code" list="room-codes" placeholder="e.g. 1101" required></label>
+      <datalist id="room-codes">{% for r in rooms %}<option value="{{ r.code }}">{{ r.floor.block.name }} - {{ r.room_type }}</option>{% endfor %}</datalist>
+      <label>Energy consumed (kWh)<input name="energy_kwh" type="number" min="0.01" step="0.01" placeholder="e.g. 14.25" required></label>
+      <label>Note <span class="muted">(optional)</span><input name="note" placeholder="e.g. Morning lab session meter reading"></label>
+      <label>Timestamp <span class="muted">(leave blank for current time)</span><input name="recorded_at" type="datetime-local"></label>
+      <button class="button" type="submit">Save reading</button>
+    </form>
+  </section>
+  <section class="panel">
+    <h2>Data sources &amp; REST API</h2>
+    <div class="source-item"><span class="tag manual">manual</span><p>Entered directly by lab coordinators or facility staff via this form.</p></div>
+    <div class="source-item"><span class="tag api">api</span><p>Posted automatically by smart meters or scripts to <code>POST /api/readings</code>.</p></div>
+    <div class="source-item"><span class="tag simulated">simulated</span><p>Pre-seeded 30-day campus baseline logs for testing analytics.</p></div>
+    <pre class="code-box">curl -X POST http://127.0.0.1:5000/api/readings   -H "Content-Type: application/json"   -d '{"room_code":"1101","energy_kwh":15.4}'</pre>
+  </section>
+</div>
+<section class="panel table-panel">
+  <div class="panel-head"><h2>Recent readings</h2><span class="muted">Latest 60 records</span></div>
+  <table>
+    <thead><tr><th>Room</th><th>Timestamp</th><th>Energy</th><th>Source</th><th>Note</th></tr></thead>
+    <tbody>
+      {% for row in readings %}
+      <tr>
+        <td><a href="{{ url_for('main.room_detail', room_id=row.room_id) }}">{{ row.room.code }}</a></td>
+        <td>{{ row.recorded_at.strftime('%d %b %Y, %I:%M %p') }}</td>
+        <td>{{ row.energy_kwh|num }} kWh</td>
+        <td><span class="tag {{ row.source }}">{{ row.source }}</span></td>
+        <td class="muted">{{ row.note or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends 'base.html' %}{% block title %}Equipment{% endblock %}{% block content %}
+<div class="page-heading"><div><p class="eyebrow">CAMPUS ASSETS</p><h1>Equipment inventory</h1><p class="muted">Filter assets by room or category, toggle active status, or register new devices.</p></div></div>
+<div class="content-grid">
+  <section class="panel">
+    <h2>Filter inventory</h2>
+    <form method="get" class="inline-form">
+      <input name="q" value="{{ q }}" placeholder="Search room code (e.g. 1101) or equipment...">
+      <select name="category">
+        <option value="">All categories</option>
+        {% for c in categories %}<option value="{{ c }}" {{ 'selected' if selected_cat == c else '' }}>{{ c }}</option>{% endfor %}
+      </select>
+      <button class="button" type="submit">Filter</button>
+      {% if q or selected_cat %}<a class="button secondary" href="{{ url_for('main.equipment') }}">Reset</a>{% endif %}
+    </form>
+  </section>
+  <section class="panel">
+    <h2>Add equipment to room</h2>
+    <form method="post" class="inline-form">
+      <input type="hidden" name="action" value="add">
+      <input name="room_code" placeholder="Room (1101)" required style="max-width:115px">
+      <input name="name" placeholder="Device name" required>
+      <input name="category" placeholder="Category (e.g. Lighting)" required>
+      <input name="quantity" type="number" min="1" value="1" title="Quantity" style="max-width:75px" required>
+      <input name="rated_watts" type="number" min="1" step="1" placeholder="Watts" style="max-width:95px" required>
+      <input name="hours_per_day" type="number" min="0.5" max="24" step="0.5" value="8" title="Hours/day" style="max-width:80px" required>
+      <button class="button" type="submit">Add</button>
+    </form>
+  </section>
+</div>
+<section class="panel table-panel">
+  <div class="panel-head"><h2>Registered equipment</h2><span class="muted">Showing up to 200 matching items</span></div>
+  <table>
+    <thead><tr><th>Room</th><th>Equipment</th><th>Category</th><th>Qty</th><th>Watts</th><th>Hrs/day</th><th>Est. kWh/day</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for item in items %}
+      <tr class="{{ 'row-muted' if not item.is_active else '' }}">
+        <td><a href="{{ url_for('main.room_detail', room_id=item.room_id) }}">{{ item.room.code }}</a></td>
+        <td>{{ item.name }}</td>
+        <td>{{ item.category }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.rated_watts|int }} W</td>
+        <td>{{ item.hours_per_day }}</td>
+        <td>{{ (item.estimated_daily_kwh if item.is_active else 0)|num }}</td>
+        <td>
+          <form method="post" style="display:inline">
+            <input type="hidden" name="action" value="toggle">
+            <input type="hidden" name="item_id" value="{{ item.id }}">
+            <button type="submit" class="mini-btn {{ 'on' if item.is_active else 'off' }}">{{ 'Active' if item.is_active else 'Off' }}</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="8">No equipment matched your filter.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}
